@@ -1,7 +1,7 @@
 // Webflow Integration Script
 class WebflowIntegration {
   constructor() {
-    this.API_BASE_URL = "http://localhost:3000/api"; // Change this to your production URL
+    this.API_BASE_URL = window.location.origin + "/api";
     this.setupEventListeners();
     this.debugLog("Integration initialized", "info");
   }
