@@ -1,0 +1,23 @@
+{
+  "name": "webflow-3comma",
+  "version": "1.0.0",
+  "description": "Webflow integration with 3Comma and Binance",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-validator": "^7.2.1",
+    "mongoose": "^7.0.3",
+    "node-binance-api": "^1.0.9",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
