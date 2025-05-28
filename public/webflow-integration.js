@@ -69,6 +69,7 @@ class WebflowIntegration {
           "Binance wallet connected successfully!",
           "success"
         );
+        this.updateAccountInfoDisplay(data.data);
         this.updateBalanceDisplay(data.data.balances);
       } else {
         const errorMessage =
@@ -254,6 +255,39 @@ class WebflowIntegration {
     setTimeout(() => {
       notification.remove();
     }, 3000);
+  }
+
+  updateAccountInfoDisplay(accountInfo) {
+    const container = document.getElementById("account-info-display");
+    if (!container || !accountInfo) return;
+    container.innerHTML = `
+      <div><strong>Account Type:</strong> ${accountInfo.accountType}</div>
+      <div><strong>Maker Commission:</strong> ${
+        accountInfo.makerCommission
+      }</div>
+      <div><strong>Taker Commission:</strong> ${
+        accountInfo.takerCommission
+      }</div>
+      <div><strong>Buyer Commission:</strong> ${
+        accountInfo.buyerCommission
+      }</div>
+      <div><strong>Seller Commission:</strong> ${
+        accountInfo.sellerCommission
+      }</div>
+      <div><strong>Can Trade:</strong> ${accountInfo.canTrade}</div>
+      <div><strong>Can Withdraw:</strong> ${accountInfo.canWithdraw}</div>
+      <div><strong>Can Deposit:</strong> ${accountInfo.canDeposit}</div>
+      <div><strong>Permissions:</strong> ${
+        Array.isArray(accountInfo.permissions)
+          ? accountInfo.permissions.join(", ")
+          : accountInfo.permissions
+      }</div>
+      <div><strong>Update Time:</strong> ${
+        accountInfo.updateTime
+          ? new Date(accountInfo.updateTime).toLocaleString()
+          : "N/A"
+      }</div>
+    `;
   }
 }
 

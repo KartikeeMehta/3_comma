@@ -162,3 +162,16 @@
 .btn-danger:hover {
   background: #c0392b;
 }
+
+#account-info-display {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-size: 15px;
+  color: #333;
+}
+#account-info-display div {
+  margin-bottom: 6px;
+}
