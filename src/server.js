@@ -14,9 +14,9 @@ const server = http.createServer(app);
 // CORS Configuration
 const corsOptions = {
   origin: [
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-    "https://threecomma-zy4s.onrender.com",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://3comma-production.up.railway.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],
