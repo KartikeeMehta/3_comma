@@ -20,14 +20,6 @@ const corsOptions = {
   maxAge: 86400, // 24 hours
 };
 
-// Middleware
-app.use(cors(corsOptions));
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Serve static files from the public directory
-app.use(express.static(path.join(__dirname, "../public")));
-
 // Set Content Security Policy header to allow fonts and other resources
 app.use((req, res, next) => {
   res.setHeader(
@@ -36,6 +28,14 @@ app.use((req, res, next) => {
   );
   next();
 });
+
+// Middleware
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, "../public")));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
