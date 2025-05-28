@@ -87,9 +87,7 @@ router.post(
         res.json({
           success: true,
           message: "Binance wallet connected successfully",
-          data: {
-            balances: accountInfo.balances,
-          },
+          data: accountInfo,
         });
       } catch (binanceError) {
         const errorInfo = handleBinanceError(binanceError);
