@@ -136,7 +136,11 @@
           ws.close();
         }
 
-        const wsUrl = `ws://localhost:3000/ws`;
+        // Use correct WebSocket URL for local and production
+        const wsProtocol =
+          window.location.protocol === "https:" ? "wss:" : "ws:";
+        const wsHost = window.location.host;
+        const wsUrl = `${wsProtocol}//${wsHost}/ws`;
         debugLog(`Attempting to connect to WebSocket at ${wsUrl}`, "info");
 
         try {
