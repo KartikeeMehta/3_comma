@@ -42,7 +42,7 @@ function handleBinanceError(error) {
   };
 }
 
-// Connect Binance wallet
+// Connect Binance wallet (test credentials)
 router.post(
   "/connect",
   [
@@ -80,10 +80,6 @@ router.post(
           throw new Error("Failed to get account information");
         }
 
-        // Store the credentials in environment variables for future use
-        process.env.BINANCE_API_KEY = apiKey;
-        process.env.BINANCE_API_SECRET = apiSecret;
-
         res.json({
           success: true,
           message: "Binance wallet connected successfully",
@@ -109,102 +105,94 @@ router.post(
   }
 );
 
-// Get account balance
-router.get("/balance", async (req, res) => {
-  try {
-    if (!process.env.BINANCE_API_KEY || !process.env.BINANCE_API_SECRET) {
-      return res.status(401).json({
-        success: false,
-        message: "Binance wallet not connected",
-      });
-    }
-
-    const binance = new Binance().options({
-      APIKEY: process.env.BINANCE_API_KEY,
-      APISECRET: process.env.BINANCE_API_SECRET,
-      useServerTime: true,
-      recvWindow: 60000,
-    });
-
+// Get account balance (requires API key/secret in body)
+router.post(
+  "/balance",
+  [
+    body("apiKey").notEmpty().withMessage("API Key is required"),
+    body("apiSecret").notEmpty().withMessage("API Secret is required"),
+  ],
+  async (req, res) => {
     try {
-      const accountInfo = await binance.account();
-
-      if (!accountInfo || !accountInfo.balances) {
-        throw new Error("Failed to get account information");
-      }
-
-      res.json({
-        success: true,
-        data: {
-          balances: accountInfo.balances,
-        },
+      const { apiKey, apiSecret } = req.body;
+      const binance = new Binance().options({
+        APIKEY: apiKey,
+        APISECRET: apiSecret,
+        useServerTime: true,
+        recvWindow: 60000,
       });
-    } catch (binanceError) {
-      const errorInfo = handleBinanceError(binanceError);
+      try {
+        const accountInfo = await binance.account();
+        if (!accountInfo || !accountInfo.balances) {
+          throw new Error("Failed to get account information");
+        }
+        res.json({
+          success: true,
+          data: accountInfo.balances,
+        });
+      } catch (binanceError) {
+        const errorInfo = handleBinanceError(binanceError);
+        res.status(500).json({
+          success: false,
+          message: errorInfo.message,
+          details: errorInfo.details,
+          error: binanceError,
+        });
+      }
+    } catch (error) {
+      console.error("Balance fetch error:", error);
       res.status(500).json({
         success: false,
-        message: errorInfo.message,
-        details: errorInfo.details,
-        error: binanceError,
+        message: "Failed to fetch balance",
+        details: error.message || "Unknown error occurred",
       });
     }
-  } catch (error) {
-    console.error("Balance fetch error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch balance",
-      details: error.message || "Unknown error occurred",
-    });
   }
-});
+);
 
-// Get trading pairs
-router.get("/trading-pairs", async (req, res) => {
-  try {
-    if (!process.env.BINANCE_API_KEY || !process.env.BINANCE_API_SECRET) {
-      return res.status(401).json({
-        success: false,
-        message: "Binance wallet not connected",
-      });
-    }
-
-    const binance = new Binance().options({
-      APIKEY: process.env.BINANCE_API_KEY,
-      APISECRET: process.env.BINANCE_API_SECRET,
-      useServerTime: true,
-      recvWindow: 60000,
-    });
-
+// Get trading pairs (requires API key/secret in body)
+router.post(
+  "/trading-pairs",
+  [
+    body("apiKey").notEmpty().withMessage("API Key is required"),
+    body("apiSecret").notEmpty().withMessage("API Secret is required"),
+  ],
+  async (req, res) => {
     try {
-      const exchangeInfo = await binance.exchangeInfo();
-
-      if (!exchangeInfo || !exchangeInfo.symbols) {
-        throw new Error("Failed to get exchange information");
-      }
-
-      res.json({
-        success: true,
-        data: {
-          symbols: exchangeInfo.symbols,
-        },
+      const { apiKey, apiSecret } = req.body;
+      const binance = new Binance().options({
+        APIKEY: apiKey,
+        APISECRET: apiSecret,
+        useServerTime: true,
+        recvWindow: 60000,
       });
-    } catch (binanceError) {
-      const errorInfo = handleBinanceError(binanceError);
+      try {
+        const exchangeInfo = await binance.exchangeInfo();
+        if (!exchangeInfo || !exchangeInfo.symbols) {
+          throw new Error("Failed to get exchange information");
+        }
+        res.json({
+          success: true,
+          data: exchangeInfo.symbols,
+        });
+      } catch (binanceError) {
+        const errorInfo = handleBinanceError(binanceError);
+        res.status(500).json({
+          success: false,
+          message: errorInfo.message,
+          details: errorInfo.details,
+          error: binanceError,
+        });
+      }
+    } catch (error) {
+      console.error("Trading pairs fetch error:", error);
       res.status(500).json({
         success: false,
-        message: errorInfo.message,
-        details: errorInfo.details,
-        error: binanceError,
+        message: "Failed to fetch trading pairs",
+        details: error.message || "Unknown error occurred",
       });
     }
-  } catch (error) {
-    console.error("Trading pairs fetch error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch trading pairs",
-      details: error.message || "Unknown error occurred",
-    });
   }
-});
+);
 
 module.exports = router;

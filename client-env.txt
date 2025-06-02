@@ -1,0 +1,27 @@
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+
+# MongoDB Configuration
+MONGODB_URI=mongodb+srv://bot_table:xwpM3O9QvEAU81NM@botsdb.akq6nxr.mongodb.net/?retryWrites=true&w=majority&appName=BotsDB
+
+# JWT Configuration
+JWT_SECRET=your_secure_jwt_secret_key
+JWT_EXPIRES_IN=24h
+
+# Binance API Configuration
+BINANCE_API_KEY=rESZNqiGmugiZmPfwuNGq9GeOXRIiWb3TA76mHWADL6wt4pPZQudDrYyAvB1MO9q
+BINANCE_API_SECRET=pJ2CMB97aOqtWyX9FeONISYe1gigziGt3RbsWehvVxDGKMNLtIo9lrHZwlfW6ewW
+
+# 3Comma API Configuration
+THREE_COMMA_API_KEY=5537fe8ef7a740c8b2d71740d770e5bc4e65215ed47f43649e1a4e06def6d0da
+THREE_COMMA_API_SECRET=b065c238c4e270355c4232b30f3460a4ccc4994f3c679e2618565a0c63f1914baa5f4b85915f9f81e1576ee75cbe4b6c5c9b688ddc4edd94d3f94f3b8d66eab80a059c38851734698948ab5324c1602cd8a4efe710da978400d837c625a0847d01735bbe
+
+# Webflow Configuration
+WEBFLOW_API_KEY=16a8063a3f4afd8c6537eadb25e216dab3e5e6994df019d73c211e99557f061c
+WEBFLOW_SITE_ID=67e97a44f6a55bd08e24acf8
+WEBFLOW_DOMAIN=your_webflow_domain.com
+
+# CORS Configuration
+ALLOWED_ORIGINS=https://your-webflow-domain.webflow.io,https://your-custom-domain.com'
+

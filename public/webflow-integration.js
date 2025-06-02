@@ -6,6 +6,7 @@ class WebflowIntegration {
     this.binanceApiSecret = null;
     this.setupEventListeners();
     this.debugLog("Integration initialized", "info");
+    this.populateAccountDropdown();
   }
 
   setupEventListeners() {
@@ -294,6 +295,94 @@ class WebflowIntegration {
           : "N/A"
       }</div>
     `;
+  }
+
+  async populateAccountDropdown() {
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/3comma/accounts`, {
+        headers: { Accept: "application/json" },
+      });
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        const select = document.getElementById("account-id-select");
+        if (select) {
+          select.innerHTML =
+            '<option value="">Select Account</option>' +
+            data.data
+              .map(
+                (acc) =>
+                  `<option value="${acc.id}">${
+                    acc.exchange_name || acc.name || acc.id
+                  } (${acc.pretty_display_type || acc.market_code})</option>`
+              )
+              .join("");
+        }
+      }
+    } catch (error) {
+      this.debugLog(
+        `Failed to fetch 3Commas accounts: ${error.message}`,
+        "error"
+      );
+    }
+  }
+
+  async fetchWallet() {
+    if (!this.binanceApiKey || !this.binanceApiSecret) return;
+    try {
+      const response = await fetch(`${this.API_BASE_URL}/binance/balance`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          apiKey: this.binanceApiKey,
+          apiSecret: this.binanceApiSecret,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        this.updateBalanceDisplay(data.data);
+      } else {
+        this.showNotification(
+          data.message || "Failed to fetch wallet",
+          "error"
+        );
+      }
+    } catch (error) {
+      this.showNotification(error.message, "error");
+    }
+  }
+
+  async fetchTradingPairs() {
+    if (!this.binanceApiKey || !this.binanceApiSecret) return;
+    try {
+      const response = await fetch(
+        `${this.API_BASE_URL}/binance/trading-pairs`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            apiKey: this.binanceApiKey,
+            apiSecret: this.binanceApiSecret,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data.success) {
+        // You can use data.data to populate trading pairs dropdown if needed
+      } else {
+        this.showNotification(
+          data.message || "Failed to fetch trading pairs",
+          "error"
+        );
+      }
+    } catch (error) {
+      this.showNotification(error.message, "error");
+    }
   }
 }
 

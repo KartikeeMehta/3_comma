@@ -65,12 +65,9 @@
       <form id="bot-creation-form" class="bot-creation-form">
         <h2>Create Trading Bot</h2>
         <input type="text" name="bot-name" placeholder="Bot Name" required />
-        <input
-          type="text"
-          name="account-id"
-          placeholder="Account ID"
-          required
-        />
+        <select name="account-id" id="account-id-select" required>
+          <option value="">Select Account</option>
+        </select>
         <select name="trading-pair" required>
           <option value="">Select Trading Pair</option>
           <option value="BTC/USDT">BTC/USDT</option>

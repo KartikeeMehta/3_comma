@@ -1,16 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios");
+const crypto = require("crypto");
 const { body, validationResult } = require("express-validator");
 
-// Initialize 3Comma API client
-const threeCommaClient = axios.create({
-  baseURL: "https://api.3commas.io/public/api",
-  headers: {
-    APIKEY: process.env.THREE_COMMA_API_KEY,
-    Signature: process.env.THREE_COMMA_API_SECRET,
-  },
-});
+const API_BASE = "https://api.3commas.io";
+
+function getSignature(path) {
+  return crypto
+    .createHmac("sha256", process.env.THREE_COMMA_API_SECRET)
+    .update(path)
+    .digest("hex");
+}
 
 // Create a new bot
 router.post(
@@ -30,7 +31,6 @@ router.post(
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-
       const botConfig = {
         name: req.body.name,
         account_id: req.body.account_id,
@@ -41,16 +41,14 @@ router.post(
         max_safety_orders: req.body.max_safety_orders,
         active: true,
       };
-
-      // Accept and log Binance API credentials for future use
-      const { binanceApiKey, binanceApiSecret } = req.body;
-      if (binanceApiKey && binanceApiSecret) {
-        console.log("Received Binance API credentials for bot creation.");
-        // You can use these credentials as needed for 3Commas API
-      }
-
-      const response = await threeCommaClient.post("/v1/bots", botConfig);
-
+      const path = "/public/api/ver1/bots";
+      const signature = getSignature(path);
+      const response = await axios.post(API_BASE + path, botConfig, {
+        headers: {
+          APIKEY: process.env.THREE_COMMA_API_KEY,
+          Signature: signature,
+        },
+      });
       res.json({
         success: true,
         message: "Bot created successfully",
@@ -60,7 +58,7 @@ router.post(
       res.status(500).json({
         success: false,
         message: "Failed to create bot",
-        error: error.message,
+        error: error.response ? error.response.data : error.message,
       });
     }
   }
@@ -69,7 +67,14 @@ router.post(
 // Get all bots
 router.get("/bots", async (req, res) => {
   try {
-    const response = await threeCommaClient.get("/v1/bots");
+    const path = "/public/api/ver1/bots";
+    const signature = getSignature(path);
+    const response = await axios.get(API_BASE + path, {
+      headers: {
+        APIKEY: process.env.THREE_COMMA_API_KEY,
+        Signature: signature,
+      },
+    });
     res.json({
       success: true,
       data: response.data,
@@ -78,7 +83,7 @@ router.get("/bots", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch bots",
-      error: error.message,
+      error: error.response ? error.response.data : error.message,
     });
   }
 });
@@ -86,7 +91,14 @@ router.get("/bots", async (req, res) => {
 // Get bot details
 router.get("/bots/:id", async (req, res) => {
   try {
-    const response = await threeCommaClient.get(`/v1/bots/${req.params.id}`);
+    const path = `/public/api/ver1/bots/${req.params.id}`;
+    const signature = getSignature(path);
+    const response = await axios.get(API_BASE + path, {
+      headers: {
+        APIKEY: process.env.THREE_COMMA_API_KEY,
+        Signature: signature,
+      },
+    });
     res.json({
       success: true,
       data: response.data,
@@ -95,7 +107,7 @@ router.get("/bots/:id", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch bot details",
-      error: error.message,
+      error: error.response ? error.response.data : error.message,
     });
   }
 });
@@ -110,8 +122,18 @@ router.post("/bots/:id/:action", async (req, res) => {
         message: "Invalid action. Use start or stop",
       });
     }
-
-    const response = await threeCommaClient.post(`/v1/bots/${id}/${action}`);
+    const path = `/public/api/ver1/bots/${id}/${action}`;
+    const signature = getSignature(path);
+    const response = await axios.post(
+      API_BASE + path,
+      {},
+      {
+        headers: {
+          APIKEY: process.env.THREE_COMMA_API_KEY,
+          Signature: signature,
+        },
+      }
+    );
     res.json({
       success: true,
       message: `Bot ${action}ed successfully`,
@@ -121,7 +143,35 @@ router.post("/bots/:id/:action", async (req, res) => {
     res.status(500).json({
       success: false,
       message: `Failed to ${req.params.action} bot`,
-      error: error.message,
+      error: error.response ? error.response.data : error.message,
+    });
+  }
+});
+
+// Get connected accounts
+router.get("/accounts", async (req, res) => {
+  try {
+    const path = "/public/api/ver1/accounts";
+    const signature = getSignature(path);
+    const response = await axios.get(API_BASE + path, {
+      headers: {
+        APIKEY: process.env.THREE_COMMA_API_KEY,
+        Signature: signature,
+      },
+    });
+    res.json({
+      success: true,
+      data: response.data,
+    });
+  } catch (error) {
+    console.error(
+      "3Commas /accounts error:",
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch accounts",
+      error: error.response ? error.response.data : error.message,
     });
   }
 });
