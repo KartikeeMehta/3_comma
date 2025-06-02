@@ -2,6 +2,8 @@
 class WebflowIntegration {
   constructor() {
     this.API_BASE_URL = window.location.origin + "/api";
+    this.binanceApiKey = null;
+    this.binanceApiSecret = null;
     this.setupEventListeners();
     this.debugLog("Integration initialized", "info");
   }
@@ -64,6 +66,8 @@ class WebflowIntegration {
       }
 
       if (data.success) {
+        this.binanceApiKey = apiKey;
+        this.binanceApiSecret = apiSecret;
         this.debugLog("Binance wallet connected successfully", "success");
         this.showNotification(
           "Binance wallet connected successfully!",
@@ -104,6 +108,8 @@ class WebflowIntegration {
           formData.get("step-percentage")
         ),
         max_safety_orders: parseInt(formData.get("max-orders")),
+        binanceApiKey: this.binanceApiKey,
+        binanceApiSecret: this.binanceApiSecret,
       };
 
       this.debugLog("Attempting to create bot...", "info");

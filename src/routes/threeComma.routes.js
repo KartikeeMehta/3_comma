@@ -42,6 +42,13 @@ router.post(
         active: true,
       };
 
+      // Accept and log Binance API credentials for future use
+      const { binanceApiKey, binanceApiSecret } = req.body;
+      if (binanceApiKey && binanceApiSecret) {
+        console.log("Received Binance API credentials for bot creation.");
+        // You can use these credentials as needed for 3Commas API
+      }
+
       const response = await threeCommaClient.post("/v1/bots", botConfig);
 
       res.json({
