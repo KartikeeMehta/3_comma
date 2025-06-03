@@ -16,7 +16,8 @@ const corsOptions = {
   origin: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://3comma-production.up.railway.app",
+    "https://3comma-production-d61d.up.railway.app",
+    "https://drivbots.webflow.io",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"],

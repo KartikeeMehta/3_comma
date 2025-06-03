@@ -76,6 +76,7 @@ class WebflowIntegration {
         );
         this.updateAccountInfoDisplay(data.data);
         this.updateBalanceDisplay(data.data.balances);
+        this.updateBotsList();
       } else {
         const errorMessage =
           data.details || data.message || "Failed to connect Binance wallet";
@@ -126,7 +127,29 @@ class WebflowIntegration {
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMsg = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData) {
+            if (Array.isArray(errorData.errors)) {
+              errorMsg = errorData.errors.map((e) => e.msg).join("; ");
+            } else if (
+              typeof errorData.error === "string" ||
+              typeof errorData.message === "string"
+            ) {
+              errorMsg = errorData.error || errorData.message;
+            } else if (typeof errorData.error === "object") {
+              errorMsg = JSON.stringify(errorData.error);
+            } else if (typeof errorData.errors === "object") {
+              errorMsg = JSON.stringify(errorData.errors);
+            } else {
+              errorMsg = JSON.stringify(errorData);
+            }
+          }
+        } catch (e) {}
+        this.debugLog(`Bot creation error: ${errorMsg}`, "error");
+        this.showNotification(errorMsg, "error");
+        return;
       }
 
       const data = await response.json();
@@ -140,8 +163,10 @@ class WebflowIntegration {
         this.showNotification("Failed to create bot", "error");
       }
     } catch (error) {
-      this.debugLog(`Bot creation error: ${error.message}`, "error");
-      this.showNotification("Error creating bot", "error");
+      let errorMsg =
+        error && error.message ? error.message : JSON.stringify(error);
+      this.debugLog(`Bot creation error: ${errorMsg}`, "error");
+      this.showNotification(errorMsg, "error");
       console.error("Bot creation error:", error);
     }
   }
@@ -188,27 +213,40 @@ class WebflowIntegration {
 
       if (data.success) {
         const botsContainer = document.querySelector("#bots-list");
+        let bots = [];
+        if (Array.isArray(data.data)) {
+          bots = data.data;
+        } else if (data.data && Array.isArray(data.data.bots)) {
+          bots = data.data.bots;
+        }
         if (botsContainer) {
-          botsContainer.innerHTML = data.data
-            .map(
-              (bot) => `
-                        <div class="bot-item">
-                            <h3>${bot.name}</h3>
-                            <p>Pair: ${bot.pair}</p>
-                            <p>Status: ${bot.active ? "Active" : "Inactive"}</p>
-                            <button onclick="webflowIntegration.toggleBot('${
-                              bot.id
-                            }', '${bot.active ? "stop" : "start"}')">
-                                ${bot.active ? "Stop" : "Start"}
-                            </button>
-                        </div>
-                    `
-            )
-            .join("");
-          this.debugLog(
-            `Updated bots list with ${data.data.length} bots`,
-            "success"
-          );
+          if (bots.length > 0) {
+            botsContainer.innerHTML = bots
+              .map(
+                (bot) => `
+                          <div class="bot-item">
+                              <h3>${bot.name}</h3>
+                              <p>Pair: ${bot.pair}</p>
+                              <p>Status: ${
+                                bot.active ? "Active" : "Inactive"
+                              }</p>
+                              <button onclick="webflowIntegration.toggleBot('${
+                                bot.id
+                              }', '${bot.active ? "stop" : "start"}')">
+                                  ${bot.active ? "Stop" : "Start"}
+                              </button>
+                          </div>
+                      `
+              )
+              .join("");
+            this.debugLog(
+              `Updated bots list with ${bots.length} bots`,
+              "success"
+            );
+          } else {
+            botsContainer.innerHTML = "<div>No bots found.</div>";
+            this.debugLog("No bots found.", "info");
+          }
         }
       }
     } catch (error) {
